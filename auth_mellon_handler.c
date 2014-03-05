@@ -3199,8 +3199,9 @@ int am_auth_mellon_user(request_rec *r)
 
             referer = apr_table_get(r->headers_in, "Referer");
             if((referer != NULL) && 
-               (strstr(referer, "prem-idp-lab01") != NULL)) {
-                // Do Nothing!
+               (strstr(referer, dir->idp_url) != NULL)) {
+               ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                     "No SESSION! Redirecting to IdP for login: %s", dir->idp_url);
 
             } else {
                 idp_logout_url = apr_psprintf(r->pool, "/zport/dmd/logoutUser");

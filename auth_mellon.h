@@ -233,6 +233,9 @@ typedef struct am_dir_cfg_rec {
     /* Whether we should replay POST data after authentication. */
     int post_replay;
 
+    /* URL or hostname of IDP */
+    const char *idp_url;
+
     /* Cached lasso server object. */
     LassoServer *server;
 } am_dir_cfg_rec;

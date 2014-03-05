@@ -1202,6 +1202,13 @@ const command_rec auth_mellon_commands[] = {
         OR_AUTHCFG,
         "Whether we should replay POST requests that trigger authentication. Default is off."
         ),
+    AP_INIT_TAKE1(
+        "URLOfIdP",
+        ap_set_string_slot,
+        (void *)APR_OFFSETOF(am_dir_cfg_rec, idp_url),
+        OR_AUTHCFG,
+        "URL or Hostname of the IDP"
+        ),
     {NULL}
 };
 
@@ -1289,6 +1296,8 @@ void *auth_mellon_dir_config(apr_pool_t *p, char *d)
     dir->subject_confirmation_data_address_check = inherit_subject_confirmation_data_address_check;
     dir->do_not_verify_logout_signature = apr_hash_make(p);
     dir->post_replay = inherit_post_replay;
+
+    dir->idp_url = NULL;
 
     return dir;
 }
@@ -1507,6 +1516,10 @@ void *auth_mellon_dir_merge(apr_pool_t *p, void *base, void *add)
     new_cfg->subject_confirmation_data_address_check =
         CFG_MERGE(add_cfg, base_cfg, subject_confirmation_data_address_check);
     new_cfg->post_replay = CFG_MERGE(add_cfg, base_cfg, post_replay);
+
+    new_cfg->idp_url = (add_cfg->idp_url != NULL ?
+                                     add_cfg->idp_url :
+                                     base_cfg->idp_url);
 
     return new_cfg;
 }
