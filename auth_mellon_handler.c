@@ -3154,6 +3154,7 @@ static int am_start_auth(request_rec *r)
 int am_auth_mellon_user(request_rec *r)
 {
     am_dir_cfg_rec *dir = am_get_dir_cfg(r);
+    const char *idp_error_url;
     const char *idp_logout_url;
     const char *referer;
     int return_code = HTTP_UNAUTHORIZED;
@@ -3192,9 +3193,20 @@ int am_auth_mellon_user(request_rec *r)
         if(session == NULL || !session->logged_in) {
             /* We don't have a valid session. */
 
+            ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                  "Session is NULL OR Session is not logged_in.");
+ 
             if(session) {
                 /* Release the session. */
                 am_release_request_session(r, session);
+            }
+
+            if(dir->idp_url == NULL) {
+                ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                      "Missing URLOfIdP parameter set in SP config.");
+                idp_error_url = apr_psprintf(r->pool, "/idp_error_handler_30220");
+                apr_table_setn(r->headers_out, "Location", idp_error_url);
+                return HTTP_SEE_OTHER;
             }
 
             referer = apr_table_get(r->headers_in, "Referer");
