@@ -3202,8 +3202,8 @@ int am_auth_mellon_user(request_rec *r)
             }
 
             if(dir->idp_url == NULL) {
-                ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
-                      "Missing URLOfIdP parameter set in SP config.");
+                ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r,
+                      "Missing URLOfIdP parameter in SP config.");
                 idp_error_url = apr_psprintf(r->pool, "/idp_error_handler_30220");
                 apr_table_setn(r->headers_out, "Location", idp_error_url);
                 return HTTP_SEE_OTHER;
@@ -3213,12 +3213,12 @@ int am_auth_mellon_user(request_rec *r)
             if((referer != NULL) && 
                (strstr(referer, dir->idp_url) != NULL)) {
                ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
-                     "No SESSION! Redirecting to IdP for login: %s", dir->idp_url);
+                     "Referer is %s, NO session, proceed to send the user to the IdP auth page.", referer);
 
             } else {
                 idp_logout_url = apr_psprintf(r->pool, "/zport/dmd/logoutUser");
                 ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
-                      "No SESSION! IdP Logout URL: %s", idp_logout_url);
+                      "Redirecting to IdP Logout URL %s", idp_logout_url);
                 apr_table_setn(r->headers_out, "Location", idp_logout_url);
                 return HTTP_SEE_OTHER;
             }
